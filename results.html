@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>نتائج البحث — منظومة اجازات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f3f6fc; --panel:#FFFFFF; --ink:#2b3a55; --ink-soft:#64748f; --line:#e4e9f4;
+    --present:#0d9488; --present-bg:#dcf5f1; --present-ink:#0b7d74;
+    --away:#e8960c; --away-bg:#fdf0d9; --away-ink:#a16207;
+    --danger:#e11d48; --danger-bg:#ffe9ee;
+    --indigo:#5b6cf0; --violet:#8b5cf6;
+    --indigo-soft:#e9ecfe; --indigo-ink:#4353d8;
+    --sky-soft:#e0f2fe; --sky-ink:#0369a1;
+    --focus:#5b6cf0;
+    --grad:linear-gradient(135deg,#5b6cf0,#8b5cf6);
+    --shadow:0 12px 32px -14px rgba(74,85,150,.28);
+    --shadow-sm:0 4px 14px -6px rgba(74,85,150,.18);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{color:var(--ink); font-family:'Cairo','Segoe UI',Tahoma,Arial,sans-serif;
+       font-variant-numeric:tabular-nums; line-height:1.7; min-height:100vh;
+       background:
+         radial-gradient(900px 480px at 88% -8%, rgba(139,92,246,.16), transparent 62%),
+         radial-gradient(800px 460px at -12% 12%, rgba(13,148,136,.14), transparent 62%),
+         radial-gradient(760px 420px at 50% 112%, rgba(232,150,12,.12), transparent 60%),
+         var(--paper);
+       background-attachment:fixed;}
+  a{color:inherit;}
+  :focus-visible{outline:2px solid var(--focus); outline-offset:2px;}
+  .shell{max-width:980px; margin:0 auto; padding:32px 20px 90px;}
+  header.top{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;
+             padding-bottom:24px; margin-bottom:26px;}
+  .brand{display:flex; align-items:center; gap:14px;}
+  .logo{width:52px; height:52px; border-radius:16px; background:var(--grad); flex:none;
+        display:flex; align-items:center; justify-content:center; font-size:1.5rem;
+        box-shadow:0 10px 22px -8px rgba(99,102,241,.55);}
+  header.top h1{font-size:1.4rem; font-weight:800; margin:0; letter-spacing:0;
+        background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  header.top .tagline{color:var(--ink-soft); font-size:0.88rem; margin-top:2px;}
+  .btn{font-family:inherit; font-weight:700; font-size:0.86rem; padding:10px 16px; border-radius:12px;
+       border:1px solid var(--line); background:var(--panel); color:var(--ink); cursor:pointer;
+       transition:transform .15s ease, box-shadow .15s ease, filter .15s ease, border-color .15s ease;}
+  .btn:hover{transform:translateY(-1px); box-shadow:var(--shadow-sm); border-color:#c9d4ea;}
+  .btn.primary{background:var(--grad); color:#fff; border-color:transparent; box-shadow:0 8px 18px -8px rgba(99,102,241,.6);}
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:20px; padding:24px; box-shadow:var(--shadow); margin-bottom:20px;}
+  .panel h2{font-size:0.95rem; font-weight:800; margin:0 0 4px; color:var(--ink); display:flex; align-items:center; gap:9px;}
+  .panel .sub{color:var(--ink-soft); font-size:0.82rem; margin-bottom:16px;}
+  table{width:100%; border-collapse:collapse; font-size:0.9rem;}
+  thead th{text-align:start; font-weight:700; color:var(--ink-soft); font-size:0.78rem; padding:2px 10px 12px;
+           border-bottom:2px solid var(--line);}
+  tbody tr{border-bottom:1px solid var(--line);}
+  tbody tr:last-child{border-bottom:none;}
+  tbody td{padding:13px 10px; vertical-align:middle;}
+  .id-flex{display:flex; align-items:center; gap:12px;}
+  .avatar{width:38px; height:38px; border-radius:12px; color:#fff; display:inline-flex; align-items:center;
+          justify-content:center; font-weight:800; font-size:0.82rem; flex:none;
+          box-shadow:0 4px 10px -4px rgba(43,58,85,.4); background:var(--grad);}
+  .pill{display:inline-flex; align-items:center; gap:8px; padding:5px 12px; border-radius:999px;
+        font-weight:700; font-size:0.78rem; white-space:nowrap;}
+  .pill.in{background:var(--present-bg); color:var(--present-ink);}
+  .pill.out{background:var(--away-bg); color:var(--away-ink);}
+  .name-cell .name{font-weight:700;}
+  .name-cell .sub{color:var(--ink-soft); font-size:0.78rem; margin-top:1px;}
+  .summary-row{display:flex; gap:22px; flex-wrap:wrap; margin-bottom:18px;}
+  .summary-row .field{min-width:140px;}
+  .summary-row .field .label{color:var(--ink-soft); font-size:0.76rem; font-weight:700; margin-bottom:3px;}
+  .summary-row .field .value{font-weight:700; font-size:0.95rem;}
+  .empty-state{text-align:center; color:var(--ink-soft); padding:56px 20px; font-size:0.95rem;}
+  .empty-state::before{content:"📭"; display:block; font-size:2.6rem; margin-bottom:10px;}
+  .note{font-size:0.8rem; color:var(--ink-soft); margin-top:6px;}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header class="top">
+    <div class="brand">
+      <div class="logo">🔍</div>
+      <div>
+        <h1>نتائج البحث</h1>
+        <div class="tagline" id="search-subtitle">جارٍ البحث…</div>
+      </div>
+    </div>
+    <a class="btn" href="index.html">↩ رجوع للوحة الرئيسية</a>
+  </header>
+
+  <div id="content">
+    <div class="panel"><div class="sub">جارٍ التحميل…</div></div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  const API = "api.php";
+
+  function fmtDate(iso){
+    if(!iso) return "—";
+    const [y,m,d] = iso.split("-");
+    return new Date(Number(y), Number(m)-1, Number(d)).toLocaleDateString("ar-EG-u-nu-latn",{day:"numeric", month:"long", year:"numeric"});
+  }
+  function daysAr(n){
+    if(n === 1) return "يوم واحد";
+    if(n === 2) return "يومان";
+    if(n <= 10) return n + " أيام";
+    return n + " يومًا";
+  }
+  function initials(name){
+    const parts = String(name||"?").trim().split(/\s+/).filter(Boolean);
+    return parts.slice(0,2).map(p=>p[0]).join("") || "؟";
+  }
+  function escapeHtml(s){
+    const ENT = { "&": "&"+"amp;", "<": "&"+"lt;", ">": "&"+"gt;", '"': "&"+"quot;", "'": "&"+"#"+"39;" };
+    return String(s==null?"":s).replace(/[&<>"']/g, c => ENT[c]);
+  }
+
+  async function apiGet(action, params){
+    const qs = new URLSearchParams(Object.assign({action}, params||{}));
+    const res = await fetch(API + "?" + qs.toString());
+    return res.json();
+  }
+
+  function renderEmpty(msg){
+    document.getElementById("content").innerHTML = `<div class="panel"><div class="empty-state">${escapeHtml(msg)}</div></div>`;
+  }
+
+  function renderNameResults(results, query){
+    const subtitle = document.getElementById("search-subtitle");
+    subtitle.textContent = "نتائج البحث بالاسم: \u201c" + query + "\u201d — " + results.length + " موظف";
+
+    if(results.length === 0){
+      renderEmpty("لا يوجد موظف مطابق لهذا الاسم.");
+      return;
+    }
+
+    const html = results.map(r=>{
+      const emp = r.employee;
+      const isOut = emp.status === "out";
+      const history = r.history;
+      return `
+        <div class="panel">
+          <div class="id-flex" style="margin-bottom:16px;">
+            <span class="avatar">${escapeHtml(initials(emp.name))}</span>
+            <div>
+              <div style="font-weight:800; font-size:1.05rem;">${escapeHtml(emp.name)}</div>
+              <div style="color:var(--ink-soft); font-size:0.82rem;">${escapeHtml(emp.number || emp.code)} — ${escapeHtml(emp.workplace || "—")}</div>
+            </div>
+            <span class="pill ${isOut?'out':'in'}" style="margin-inline-start:auto;">${isOut?'في إجازة':'متواجد'}</span>
+          </div>
+
+          <div class="summary-row">
+            <div class="field"><div class="label">تاريخ الخروج (الحالي)</div><div class="value">${fmtDate(emp.last_out)}</div></div>
+            <div class="field"><div class="label">تاريخ الدخول (الحالي)</div><div class="value">${isOut ? '— لم يعد بعد' : fmtDate(emp.last_in)}</div></div>
+          </div>
+
+          ${history.length ? `
+            <table>
+              <thead><tr><th>تاريخ الخروج</th><th>تاريخ الدخول</th><th>المدة</th></tr></thead>
+              <tbody>
+                ${history.map(h=>`<tr><td>${fmtDate(h.date_out)}</td><td>${fmtDate(h.date_in)}</td><td>${daysAr(h.days_away)}</td></tr>`).join("")}
+              </tbody>
+            </table>
+          ` : `<div class="note">لا توجد إجازات سابقة مكتملة لهذا الموظف.</div>`}
+        </div>
+      `;
+    }).join("");
+
+    document.getElementById("content").innerHTML = html;
+  }
+
+  function renderDateResults(results, date){
+    const subtitle = document.getElementById("search-subtitle");
+    subtitle.textContent = "تسجيلات يوم " + fmtDate(date) + " — " + results.length + " سجل";
+
+    if(results.length === 0){
+      renderEmpty("لا توجد أي تسجيلات خروج أو دخول في هذا التاريخ.");
+      return;
+    }
+
+    const rows = results.map(r=>{
+      const isOut = r.event === "out";
+      const badge = isOut
+        ? `<span class="pill out">🛫 تاريخ خروج</span>`
+        : `<span class="pill in">🛬 تاريخ دخول</span>`;
+      return `
+        <tr>
+          <td class="name-cell">
+            <div class="id-flex"><span class="avatar">${escapeHtml(initials(r.name))}</span>
+              <div><div class="name">${escapeHtml(r.name)}</div><div class="sub">${escapeHtml(r.number || r.code)}</div></div>
+            </div>
+          </td>
+          <td>${escapeHtml(r.workplace || "—")}</td>
+          <td>${badge}</td>
+        </tr>
+      `;
+    }).join("");
+
+    document.getElementById("content").innerHTML = `
+      <div class="panel">
+        <table>
+          <thead><tr><th style="width:40%">الاسم</th><th style="width:30%">جهة العمل</th><th style="width:30%">نوع التسجيل</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  async function run(){
+    const params = new URLSearchParams(window.location.search);
+    const type = params.get("type");
+    const value = params.get("value");
+
+    if(!type || !value){
+      renderEmpty("لم يتم تحديد اسم أو تاريخ للبحث. ارجع للوحة الرئيسية وحاول مجددًا.");
+      document.getElementById("search-subtitle").textContent = "لا يوجد طلب بحث";
+      return;
+    }
+
+    try{
+      const resp = await apiGet("search", {type, value});
+      if(!resp.ok){
+        renderEmpty(resp.message || "تعذر إتمام البحث.");
+        return;
+      }
+      if(resp.mode === "name"){
+        renderNameResults(resp.results, value);
+      } else {
+        renderDateResults(resp.results, resp.date);
+      }
+    }catch(e){
+      renderEmpty("تعذر الاتصال بالخادم. تحقق من تشغيل Apache وقاعدة البيانات.");
+    }
+  }
+
+  run();
+})();
+</script>
+</body>
+</html>

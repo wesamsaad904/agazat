@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>منظومة اجازات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f3f6fc; --panel:#FFFFFF; --ink:#2b3a55; --ink-soft:#64748f; --line:#e4e9f4;
+    --present:#0d9488; --present-bg:#dcf5f1; --present-ink:#0b7d74;
+    --away:#e8960c; --away-bg:#fdf0d9; --away-ink:#a16207;
+    --danger:#e11d48; --danger-bg:#ffe9ee;
+    --indigo:#5b6cf0; --violet:#8b5cf6;
+    --indigo-soft:#e9ecfe; --indigo-ink:#4353d8;
+    --sky-soft:#e0f2fe; --sky-ink:#0369a1;
+    --focus:#5b6cf0;
+    --grad:linear-gradient(135deg,#5b6cf0,#8b5cf6);
+    --shadow:0 12px 32px -14px rgba(74,85,150,.28);
+    --shadow-sm:0 4px 14px -6px rgba(74,85,150,.18);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{color:var(--ink); font-family:'Cairo','Segoe UI',Tahoma,Arial,sans-serif;
+       font-variant-numeric:tabular-nums; line-height:1.7; min-height:100vh;
+       background:
+         radial-gradient(900px 480px at 88% -8%, rgba(139,92,246,.16), transparent 62%),
+         radial-gradient(800px 460px at -12% 12%, rgba(13,148,136,.14), transparent 62%),
+         radial-gradient(760px 420px at 50% 112%, rgba(232,150,12,.12), transparent 60%),
+         var(--paper);
+       background-attachment:fixed;}
+  a{color:inherit;}
+  :focus-visible{outline:2px solid var(--focus); outline-offset:2px;}
+  ::selection{background:#cdeee8;}
+  .shell{max-width:1180px; margin:0 auto; padding:32px 20px 90px;}
+  header.top{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;
+             padding-bottom:24px; margin-bottom:30px;}
+  .brand{display:flex; align-items:center; gap:14px;}
+  .logo{width:52px; height:52px; border-radius:16px; background:var(--grad); flex:none;
+        display:flex; align-items:center; justify-content:center; font-size:1.5rem;
+        box-shadow:0 10px 22px -8px rgba(99,102,241,.55);}
+  header.top h1{font-size:1.6rem; font-weight:800; margin:0; letter-spacing:0;
+        background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  header.top .tagline{color:var(--ink-soft); font-size:0.92rem; margin-top:2px;}
+  .counts{display:flex; gap:12px; flex-wrap:wrap;}
+  .stat{min-width:104px; padding:10px 18px; border-radius:16px; background:var(--panel);
+        border:1px solid var(--line); box-shadow:var(--shadow-sm); font-size:0.8rem;
+        color:var(--ink-soft); font-weight:700; letter-spacing:0;}
+  .stat b{display:block; font-size:1.45rem; font-weight:800; margin-top:2px;}
+  .stat.s-out{background:linear-gradient(160deg,#fff9ec,#fdf0d9); border-color:#f3e2b8;}
+  .stat.s-out b{color:#c27c02;}
+  .stat.s-in{background:linear-gradient(160deg,#effbf8,#dcf5f1); border-color:#bfe8e0;}
+  .stat.s-in b{color:var(--present);}
+  .stat.s-total{background:linear-gradient(160deg,#f2f3ff,#e9ecfe); border-color:#d9defc;}
+  .stat.s-total b{color:var(--indigo);}
+  .grid{display:grid; grid-template-columns:380px 1fr; gap:26px; align-items:start;}
+  @media (max-width:900px){.grid{grid-template-columns:1fr;}}
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:20px; padding:24px; box-shadow:var(--shadow);}
+  .panel h2{font-size:0.85rem; font-weight:800; margin:0 0 16px; color:var(--ink-soft);
+            letter-spacing:0; display:flex; align-items:center; gap:9px;}
+  .panel h2::before{content:""; width:4px; height:14px; border-radius:2px; background:var(--grad);}
+  .mode-toggle{display:flex; background:#eef2fb; border-radius:14px; padding:5px; gap:4px; margin-bottom:18px;}
+  .mode-toggle button{flex:1; border:none; background:transparent; padding:10px 8px; font-size:0.9rem;
+                       font-weight:700; cursor:pointer; color:var(--ink-soft); border-radius:10px;
+                       font-family:inherit; transition:all .18s ease;}
+  .mode-toggle button:hover{color:var(--ink);}
+  .mode-toggle button.active[data-mode="out"]{background:linear-gradient(135deg,#f6b23c,#e8960c); color:#fff;
+                                              box-shadow:0 6px 14px -6px rgba(232,150,12,.6);}
+  .mode-toggle button.active[data-mode="in"]{background:linear-gradient(135deg,#14b8a6,#0d9488); color:#fff;
+                                             box-shadow:0 6px 14px -6px rgba(13,148,136,.55);}
+  .scan-btn{width:100%; font-size:1.05rem; padding:14px 16px; border-radius:14px;}
+  .scan-btn.scanning{background:linear-gradient(135deg,#f43f5e,#e11d48); border-color:transparent; color:#fff;
+                     box-shadow:0 8px 18px -8px rgba(225,29,72,.6); animation:pulseGlow 1.6s ease infinite;}
+  @keyframes pulseGlow{0%,100%{box-shadow:0 8px 18px -8px rgba(225,29,72,.6);} 50%{box-shadow:0 8px 26px -6px rgba(225,29,72,.9);}}
+  .btn{font-family:inherit; font-weight:700; font-size:0.86rem; padding:10px 16px; border-radius:12px;
+       border:1px solid var(--line); background:var(--panel); color:var(--ink); cursor:pointer;
+       transition:transform .15s ease, box-shadow .15s ease, filter .15s ease, border-color .15s ease;}
+  .btn:hover{transform:translateY(-1px); box-shadow:var(--shadow-sm); border-color:#c9d4ea;}
+  .btn:active{transform:translateY(0); box-shadow:none;}
+  .btn.primary{background:var(--grad); color:#fff; border-color:transparent; box-shadow:0 8px 18px -8px rgba(99,102,241,.6);}
+  .btn.primary:hover{filter:brightness(1.07);}
+  .btn.ghost{background:transparent; box-shadow:none;}
+  .btn.small{padding:8px 13px; font-size:0.8rem; border-radius:10px;}
+  .btn.danger{background:var(--danger-bg); color:var(--danger); border-color:#ffd3dd;}
+  .btn.danger:hover{border-color:#f7a6b8;}
+  .btn.indigo{background:var(--indigo-soft); color:var(--indigo-ink); border-color:#d9defc;}
+  .btn.teal{background:var(--present-bg); color:var(--present-ink); border-color:#bfe8e0;}
+  .btn.sky{background:var(--sky-soft); color:var(--sky-ink); border-color:#bae3f8;}
+  .manual-entry{margin-top:20px; padding-top:18px; border-top:1px dashed #d5dcef;}
+  .manual-entry label{display:block; font-size:0.8rem; font-weight:600; color:var(--ink-soft); margin-bottom:7px;}
+  .manual-entry .row{display:flex; gap:8px;}
+  input[type=text], input[type=number], input[type=date], input[type=file]{
+       font-family:inherit; font-size:0.9rem; padding:10px 12px; border:1px solid var(--line); border-radius:12px;
+       background:#fbfcff; color:var(--ink); width:100%; transition:border-color .15s ease, box-shadow .15s ease;}
+  input[type=text]:focus, input[type=number]:focus, input[type=date]:focus{
+       outline:none; border-color:var(--indigo); box-shadow:0 0 0 3px rgba(91,108,240,.15); background:#fff;}
+  #scan-status{margin-top:14px; font-size:0.86rem; color:var(--ink-soft); min-height:1.3em;}
+  #scan-status.ok{color:var(--present-ink); font-weight:700;}
+  #scan-status.err{color:var(--danger); font-weight:700;}
+  table{width:100%; border-collapse:collapse; font-size:0.9rem;}
+  thead th{text-align:start; font-weight:700; color:var(--ink-soft); font-size:0.78rem; padding:2px 10px 12px;
+           border-bottom:2px solid var(--line); letter-spacing:0;}
+  tbody tr{border-bottom:1px solid var(--line);}
+  tbody tr:last-child{border-bottom:none;}
+  tbody td{padding:13px 10px; vertical-align:middle;}
+  tbody tr.emp-row{cursor:pointer; transition:background .15s ease;}
+  tbody tr.emp-row:hover{background:#f5f7ff;}
+  .id-flex{display:flex; align-items:center; gap:12px;}
+  .avatar{width:38px; height:38px; border-radius:12px; color:#fff; display:inline-flex; align-items:center;
+          justify-content:center; font-weight:800; font-size:0.82rem; flex:none;
+          box-shadow:0 4px 10px -4px rgba(43,58,85,.4);}
+  .status-dot{display:inline-block; width:7px; height:7px; border-radius:50%; vertical-align:middle;}
+  .status-dot.in{background:var(--present); box-shadow:0 0 0 3px rgba(13,148,136,.18);}
+  .status-dot.out{background:var(--away); box-shadow:0 0 0 3px rgba(232,150,12,.18);}
+  .pill{display:inline-flex; align-items:center; gap:8px; padding:5px 12px; border-radius:999px;
+        font-weight:700; font-size:0.78rem; white-space:nowrap;}
+  .pill.in{background:var(--present-bg); color:var(--present-ink);}
+  .pill.out{background:var(--away-bg); color:var(--away-ink);}
+  .name-cell .name{font-weight:700;}
+  .name-cell .sub{color:var(--ink-soft); font-size:0.78rem; margin-top:1px;}
+  .days{font-weight:600;}
+  .days.ongoing{color:var(--away-ink);}
+  .history-row td{padding:12px 14px 18px 18px; background:#f6f8ff;}
+  .history-row table{font-size:0.83rem;}
+  .history-row thead th{padding-bottom:6px;}
+  .history-row td.hcell{padding:6px 10px;}
+  .history-empty{color:var(--ink-soft); font-style:italic; padding:10px 0;}
+  .empty-state{text-align:center; color:var(--ink-soft); padding:56px 20px; font-size:0.95rem;}
+  .empty-state::before{content:"📭"; display:block; font-size:2.6rem; margin-bottom:10px;}
+  .toolbar{display:flex; justify-content:flex-start; gap:8px; margin-bottom:16px; flex-wrap:wrap;}
+  .modal-overlay{position:fixed; inset:0; background:rgba(43,58,85,.4); backdrop-filter:blur(4px);
+                 display:flex; align-items:center; justify-content:center; z-index:50; padding:20px;}
+  .modal{background:#fff; border-radius:20px; padding:26px; width:100%; max-width:400px;
+         box-shadow:0 30px 60px -20px rgba(43,58,85,.45); animation:pop .18s ease;}
+  @keyframes pop{from{transform:scale(.96) translateY(6px); opacity:0;} to{transform:scale(1) translateY(0); opacity:1;}}
+  .modal h3{margin:0 0 4px; font-size:1.1rem; font-weight:800;}
+  .modal p.hint{color:var(--ink-soft); font-size:0.85rem; margin:0 0 18px;}
+  .modal label{display:block; font-size:0.8rem; font-weight:600; color:var(--ink-soft); margin:12px 0 6px;}
+  .modal .actions{display:flex; gap:8px; margin-top:22px; justify-content:flex-end;}
+  .toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--grad); color:#fff;
+         padding:12px 20px; border-radius:14px; font-size:0.88rem; font-weight:600;
+         box-shadow:0 14px 30px -10px rgba(99,102,241,.55); z-index:60; max-width:90vw; animation:pop .18s ease;}
+  .toast.danger{background:linear-gradient(135deg,#f43f5e,#e11d48); box-shadow:0 14px 30px -10px rgba(225,29,72,.5);}
+  .note{font-size:0.78rem; color:var(--ink-soft); margin-top:14px; border-top:1px dashed #d5dcef; padding-top:12px;}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important;}}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header class="top">
+    <div class="brand">
+      <div class="logo">🛂</div>
+      <div>
+        <h1>منظومة اجازات</h1>
+        <div class="tagline">امسح بطاقة الموظف عند الخروج، وامسحها مرة أخرى عند العودة.</div>
+      </div>
+    </div>
+    <div class="counts">
+      <div class="stat s-out">في إجازة<b id="count-out">0</b></div>
+      <div class="stat s-in">متواجد<b id="count-in">0</b></div>
+      <div class="stat s-total">المسجلون<b id="count-total">0</b></div>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div class="panel">
+      <h2>امسح البطاقة</h2>
+      <div class="mode-toggle">
+        <button data-mode="out" class="active" id="mode-out">🛫 خروج</button>
+        <button data-mode="in" id="mode-in">🛬 عودة</button>
+      </div>
+      <button class="btn scan-btn" id="toggle-scan">🏷️ امسح الكارت</button>
+      <div id="scan-status" aria-live="polite">اضغط «امسح الكارت»، ثم مرّر البطاقات عبر جهاز الماسح واحدًا بعد الآخر.</div>
+      <div class="manual-entry">
+        <label for="manual-code">أو اكتب رمز البطاقة يدويًا</label>
+        <div class="row">
+          <input type="text" id="manual-code" placeholder="مثال: 4471-A">
+          <button class="btn" id="manual-submit">تأكيد</button>
+        </div>
+      </div>
+      <div class="note">تُحفظ البيانات في قاعدة بيانات <code>MySQL</code> عبر <code>api.php</code> — جميع المتصفحات التي تفتح هذه الصفحة تشارك نفس السجلات.</div>
+    </div>
+
+    <div class="panel">
+      <div class="toolbar" style="justify-content:space-between;">
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn small teal" id="import-excel">📥 استيراد Excel</button>
+          <button class="btn small sky" id="export-data">💾 نسخة احتياطية</button>
+          <button class="btn small danger" id="clear-data">🗑️ حذف كل البيانات</button>
+        </div>
+        <div class="search-box" style="display:flex; gap:8px; flex-wrap:wrap;">
+          <input type="text" id="search-name" placeholder="ابحث باسم الموظف" style="min-width:160px;">
+          <input type="date" id="search-date" title="أو ابحث بتاريخ الخروج/الدخول" style="min-width:150px;">
+          <button class="btn small indigo" id="search-btn">🔍 بحث</button>
+        </div>
+      </div>
+      <table id="dash-table">
+        <thead>
+          <tr>
+            <th style="width:26%">الاسم</th>
+            <th style="width:18%">جهة العمل</th>
+            <th style="width:14%">الحالة</th>
+            <th style="width:14%">تاريخ الخروج</th>
+            <th style="width:14%">تاريخ العودة</th>
+            <th style="width:14%">أيام الإجازة</th>
+          </tr>
+        </thead>
+        <tbody id="dash-body"></tbody>
+      </table>
+      <div class="empty-state" id="empty-state" style="display:none;">
+        لا يوجد موظفون مسجلون بعد. امسح بطاقة، أو أضف موظفًا يدويًا.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-root"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  const API = "api.php";
+  let employees = [];       // cache from server
+  let expandedCode = null;
+  let currentMode = "out";
+
+  // ---------- API helpers ----------
+  async function apiGet(action, params){
+    const qs = new URLSearchParams(Object.assign({action}, params||{}));
+    const res = await fetch(API + "?" + qs.toString());
+    return res.json();
+  }
+  async function apiPost(action, body){
+    const res = await fetch(API + "?action=" + encodeURIComponent(action), {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(body||{})
+    });
+    return res.json();
+  }
+
+  // ---------- helpers ----------
+  function fmtDate(iso){
+    if(!iso) return "—";
+    const [y,m,d] = iso.split("-");
+    return new Date(Number(y), Number(m)-1, Number(d)).toLocaleDateString("ar-EG-u-nu-latn",{day:"numeric", month:"long", year:"numeric"});
+  }
+  function daysSince(outIso){
+    const a = new Date(outIso+"T00:00:00");
+    const b = new Date();
+    return Math.max(0, Math.round((b-a)/86400000));
+  }
+  function daysAr(n){
+    if(n === 1) return "يوم واحد";
+    if(n === 2) return "يومان";
+    if(n <= 10) return n + " أيام";
+    return n + " يومًا";
+  }
+  const AVATAR_COLORS = [
+    ["#6366f1","#8b5cf6"], ["#0ea5a4","#22d3ee"], ["#f59e0b","#f97316"],
+    ["#ec4899","#f43f5e"], ["#3b82f6","#06b6d4"], ["#8b5cf6","#ec4899"],
+    ["#10b981","#84cc16"], ["#f43f5e","#fb923c"]
+  ];
+  function avatarStyle(code){
+    let h = 0; const s = String(code||"");
+    for(let i=0;i<s.length;i++){ h = (h*31 + s.charCodeAt(i)) >>> 0; }
+    const pair = AVATAR_COLORS[h % AVATAR_COLORS.length];
+    return "linear-gradient(135deg," + pair[0] + "," + pair[1] + ")";
+  }
+  function initials(name){
+    const parts = String(name||"?").trim().split(/\s+/).filter(Boolean);
+    const out = parts.slice(0,2).map(p=>p[0]).join("");
+    return out || "؟";
+  }
+  function toast(msg, isDanger){
+    const el = document.createElement("div");
+    el.className = "toast" + (isDanger ? " danger" : "");
+    el.textContent = msg;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 3200);
+  }
+  function escapeHtml(s){
+    const ENT = { "&": "&"+"amp;", "<": "&"+"lt;", ">": "&"+"gt;", '"': "&"+"quot;", "'": "&"+"#"+"39;" };
+    return String(s==null?"":s).replace(/[&<>"']/g, c => ENT[c]);
+  }
+  function setStatus(kind, msg){
+    const el = document.getElementById("scan-status");
+    el.className = kind;
+    el.textContent = msg;
+  }
+
+  // ---------- modals ----------
+  function openRegisterModal(code, prefill, onDone){
+    const root = document.getElementById("modal-root");
+    prefill = prefill || {};
+    root.innerHTML = `
+      <div class="modal-overlay"><div class="modal">
+        <h3>بطاقة جديدة — ${escapeHtml(code)}</h3>
+        <p class="hint">هذه البطاقة غير مسجلة بعد. أدخل البيانات المدوّنة عليها.</p>
+        <label for="f-name">الاسم</label><input type="text" id="f-name" value="${escapeHtml(prefill.name||"")}">
+        <label for="f-number">الرقم الوظيفي</label><input type="text" id="f-number" value="${escapeHtml(prefill.number||"")}">
+        <label for="f-workplace">جهة العمل</label><input type="text" id="f-workplace" value="${escapeHtml(prefill.workplace||"")}">
+        <div class="actions">
+          <button class="btn ghost" id="reg-cancel">إلغاء</button>
+          <button class="btn primary" id="reg-save">حفظ والمتابعة</button>
+        </div>
+      </div></div>`;
+    document.getElementById("reg-cancel").onclick = ()=>{ root.innerHTML=""; };
+    document.getElementById("reg-save").onclick = async ()=>{
+      const name = document.getElementById("f-name").value.trim();
+      const number = document.getElementById("f-number").value.trim();
+      const workplace = document.getElementById("f-workplace").value.trim();
+      if(!name){ toast("الاسم مطلوب.", true); return; }
+      const resp = await apiPost("register", {code, name, number, workplace});
+      if(!resp.ok){ toast(resp.message || "تعذر الحفظ.", true); return; }
+      root.innerHTML = "";
+      onDone && onDone();
+    };
+  }
+
+  function openImportModal(){
+    const root = document.getElementById("modal-root");
+    const today = new Date().toISOString().slice(0,10);
+    root.innerHTML = `
+      <div class="modal-overlay"><div class="modal">
+        <h3>استيراد من Excel</h3>
+        <p class="hint">ملف واحد بورقتين: الورقة الأولى لتسجيلات الخروج، والثانية لتسجيلات العودة. الأعمدة في كل ورقة: <strong>الرمز، الاسم، الرقم الوظيفي، جهة العمل، التاريخ</strong> (التاريخ اختياري لكل صف — اتركه فارغًا وحدّد التاريخ الاحتياطي بالأسفل).</p>
+        <label for="imp-file">ملف العمل (.xlsx)</label>
+        <input type="file" id="imp-file" accept=".xlsx">
+        <label for="imp-date">التاريخ الاحتياطي (يُستخدم للصفوف التي بدون تاريخ)</label>
+        <input type="date" id="imp-date" value="${today}">
+        <div class="actions">
+          <button class="btn ghost" id="imp-cancel">إلغاء</button>
+          <button class="btn primary" id="imp-submit">استيراد</button>
+        </div>
+      </div></div>`;
+    document.getElementById("imp-cancel").onclick = ()=>{ root.innerHTML=""; };
+    document.getElementById("imp-submit").onclick = async ()=>{
+      const fileInput = document.getElementById("imp-file");
+      const dateInput = document.getElementById("imp-date");
+      if(!fileInput.files[0]){ toast("اختر ملف .xlsx أولًا.", true); return; }
+
+      const btn = document.getElementById("imp-submit");
+      btn.disabled = true;
+      btn.textContent = "جارٍ الاستيراد…";
+
+      const formData = new FormData();
+      formData.append("file", fileInput.files[0]);
+      formData.append("date", dateInput.value || today);
+
+      try{
+        const res = await fetch(API + "?action=import_excel", { method: "POST", body: formData });
+        const resp = await res.json();
+        if(!resp.ok){
+          toast(resp.message || "فشل الاستيراد.", true);
+          btn.disabled = false; btn.textContent = "استيراد";
+          return;
+        }
+        root.innerHTML = "";
+        await refresh();
+        toast("تم استيراد " + resp.departures_processed + " خروج و" + resp.arrivals_processed + " عودة" + (resp.errors.length ? (" — تم تخطي " + resp.errors.length + " صف") : "."));
+        if(resp.errors.length){
+          console.warn("مشكلات صفوف الاستيراد:", resp.errors);
+        }
+      }catch(e){
+        toast("تعذر الاستيراد — تحقق من الملف وحاول مجددًا.", true);
+        btn.disabled = false; btn.textContent = "استيراد";
+      }
+    };
+  }
+
+  // ---------- scan processing ----------
+  function tryParsePayload(raw){
+    try{
+      const obj = JSON.parse(raw);
+      if(obj && typeof obj === "object"){
+        return { code: obj.code || obj.id || obj.number || raw, name: obj.name, number: obj.number,
+                 workplace: obj.workplace || obj.place || obj.department };
+      }
+    }catch(e){}
+    return { code: raw };
+  }
+
+  async function processScan(rawText){
+    rawText = (rawText||"").trim();
+    if(!rawText) return;
+    const parsed = tryParsePayload(rawText);
+    await completeScan(parsed.code, parsed);
+  }
+
+  async function completeScan(code, prefill){
+    const resp = await apiPost("scan", {code, mode: currentMode});
+
+    if(!resp.ok && resp.reason === "not_registered"){
+      openRegisterModal(code, prefill, ()=> completeScan(code, prefill));
+      return;
+    }
+    if(!resp.ok && resp.reason === "already_out"){
+      setStatus("err", resp.employee.name + " مسجل بالفعل في إجازة (خرج بتاريخ " + fmtDate(resp.employee.last_out) + ").");
+      return;
+    }
+    if(!resp.ok && resp.reason === "not_out"){
+      setStatus("err", resp.employee.name + " ليس في إجازة حاليًا.");
+      return;
+    }
+    if(!resp.ok){
+      setStatus("err", resp.message || "حدث خطأ ما.");
+      return;
+    }
+
+    if(currentMode === "out"){
+      setStatus("ok", resp.employee.name + " خرج — بدأت الإجازة بتاريخ " + fmtDate(resp.employee.last_out) + ".");
+      toast("تم تسجيل خروج " + resp.employee.name + ".");
+    } else {
+      setStatus("ok", resp.employee.name + " عاد — غاب لمدة " + daysAr(resp.days) + ".");
+      toast("تم تسجيل عودة " + resp.employee.name + " بعد " + daysAr(resp.days) + ".");
+    }
+    await refresh();
+  }
+
+  // ---------- جلسة المسح بمسدس الباركود ----------
+  let scanning = false, scanBuffer = "", lastKeyTime = 0;
+  const scanToggle = document.getElementById("toggle-scan");
+
+  function startScanSession(){
+    scanning = true;
+    scanBuffer = "";
+    scanToggle.textContent = "⏹ انهاء المسح";
+    scanToggle.classList.add("scanning");
+    setStatus("", "جاهز للمسح — مرّر البطاقات واحدة بعد الأخرى وسيتم التسجيل تلقائيًا.");
+    scanToggle.blur();
+  }
+  function stopScanSession(){
+    scanning = false;
+    scanBuffer = "";
+    scanToggle.textContent = "🏷️ امسح الكارت";
+    scanToggle.classList.remove("scanning");
+    setStatus("", "تم إنهاء المسح. اضغط «امسح الكارت» للبدء من جديد.");
+  }
+  scanToggle.addEventListener("click", ()=>{ scanning ? stopScanSession() : startScanSession(); });
+
+  // مسدس الباركود يعمل كلوحة مفاتيح: حروف سريعة جدًا تنتهي بـ Enter
+  document.addEventListener("keydown", (e)=>{
+    if(!scanning) return;
+    const t = e.target || {};
+    const tag = (t.tagName || "").toLowerCase();
+    if(tag === "input" || tag === "textarea" || t.isContentEditable) return;
+    const now = Date.now();
+    if(now - lastKeyTime > 100) scanBuffer = "";   // كتابة بشرية بطيئة → يُتجاهل
+    lastKeyTime = now;
+    if(e.key === "Enter"){
+      e.preventDefault();
+      const code = scanBuffer.trim();
+      scanBuffer = "";
+      if(code) processScan(code);
+      return;
+    }
+    if(e.key.length === 1) scanBuffer += e.key;
+  });
+
+  // ---------- rendering ----------
+  async function refresh(){
+    employees = await apiGet("list");
+    render();
+  }
+
+  function render(){
+    document.getElementById("count-total").textContent = employees.length;
+    const outCount = employees.filter(e=>e.status==='out').length;
+    document.getElementById("count-out").textContent = outCount;
+    document.getElementById("count-in").textContent = employees.length - outCount;
+
+    const body = document.getElementById("dash-body");
+    const emptyState = document.getElementById("empty-state");
+    body.innerHTML = "";
+
+    if(employees.length === 0){ emptyState.style.display = "block"; return; }
+    emptyState.style.display = "none";
+
+    employees.forEach(emp=>{
+      const isOut = emp.status === "out";
+      const daysLabel = isOut
+        ? daysAr(daysSince(emp.last_out)) + " (جارية)"
+        : (emp._lastDays != null ? daysAr(emp._lastDays) : "—");
+
+      const tr = document.createElement("tr");
+      tr.className = "emp-row";
+      tr.dataset.code = emp.code;
+      tr.innerHTML = `
+        <td class="name-cell"><div class="id-flex"><span class="avatar" style="background:${avatarStyle(emp.code)}">${escapeHtml(initials(emp.name))}</span><div><div class="name">${escapeHtml(emp.name)}</div><div class="sub">${escapeHtml(emp.number || emp.code)}</div></div></div></td>
+        <td>${escapeHtml(emp.workplace || "—")}</td>
+        <td><span class="pill ${isOut?'out':'in'}"><span class="status-dot ${isOut?'out':'in'}"></span>${isOut?'في إجازة':'متواجد'}</span></td>
+        <td>${fmtDate(emp.last_out)}</td>
+        <td>${isOut ? '—' : fmtDate(emp.last_in)}</td>
+        <td><span class="days ${isOut?'ongoing':''}">${daysLabel}</span></td>
+      `;
+      body.appendChild(tr);
+
+      if(expandedCode === emp.code){
+        const hrow = document.createElement("tr");
+        hrow.className = "history-row";
+        hrow.innerHTML = `<td colspan="6" id="hist-${emp.code}">جارٍ تحميل السجل…</td>`;
+        body.appendChild(hrow);
+        apiGet("history", {code: emp.code}).then(hist=>{
+          const cell = document.getElementById("hist-" + emp.code);
+          if(!cell) return;
+          cell.innerHTML = hist.length ? `
+            <table><thead><tr><th>تاريخ الخروج</th><th>تاريخ العودة</th><th>المدة</th></tr></thead>
+            <tbody>${hist.map(h=>`<tr><td class="hcell">${fmtDate(h.date_out)}</td><td class="hcell">${fmtDate(h.date_in)}</td><td class="hcell">${daysAr(h.days_away)}</td></tr>`).join("")}</tbody></table>
+          ` : `<div class="history-empty">لا توجد إجازات مكتملة بعد.</div>`;
+        });
+      }
+    });
+
+    body.querySelectorAll("tr.emp-row").forEach(row=>{
+      row.addEventListener("click", ()=>{
+        const code = row.dataset.code;
+        expandedCode = (expandedCode === code) ? null : code;
+        render();
+      });
+    });
+  }
+
+  // ---------- export ----------
+  async function exportData(){
+    const data = await apiGet("export");
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "agazat-backup-" + new Date().toISOString().slice(0,10) + ".json";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // ---------- wire up UI ----------
+  document.getElementById("mode-out").addEventListener("click", ()=>{
+    currentMode = "out";
+    document.getElementById("mode-out").classList.add("active");
+    document.getElementById("mode-in").classList.remove("active");
+  });
+  document.getElementById("mode-in").addEventListener("click", ()=>{
+    currentMode = "in";
+    document.getElementById("mode-in").classList.add("active");
+    document.getElementById("mode-out").classList.remove("active");
+  });
+  document.getElementById("manual-submit").addEventListener("click", ()=>{
+    const input = document.getElementById("manual-code");
+    processScan(input.value);
+    input.value = "";
+  });
+  document.getElementById("manual-code").addEventListener("keydown", (e)=>{
+    if(e.key === "Enter"){ processScan(e.target.value); e.target.value = ""; }
+  });
+  document.getElementById("import-excel").addEventListener("click", openImportModal);
+  document.getElementById("search-btn").addEventListener("click", runSearch);
+  document.getElementById("search-name").addEventListener("keydown", (e)=>{ if(e.key === "Enter") runSearch(); });
+  document.getElementById("search-date").addEventListener("keydown", (e)=>{ if(e.key === "Enter") runSearch(); });
+  function runSearch(){
+    const name = document.getElementById("search-name").value.trim();
+    const date = document.getElementById("search-date").value;
+    if(!name && !date){ toast("اكتب اسم الموظف أو اختر تاريخًا للبحث.", true); return; }
+    const params = name
+      ? ("type=name&value=" + encodeURIComponent(name))
+      : ("type=date&value=" + encodeURIComponent(date));
+    window.location.href = "results.html?" + params;
+  }
+  document.getElementById("export-data").addEventListener("click", exportData);
+  document.getElementById("clear-data").addEventListener("click", async ()=>{
+    if(confirm("سيتم حذف جميع الموظفين المسجلين وسجل الإجازات بالكامل من قاعدة البيانات. هل تريد المتابعة؟")){
+      await apiPost("clear_all", {});
+      await refresh();
+      toast("تم حذف جميع البيانات.");
+    }
+  });
+
+  refresh();
+})();
+</script>
+</body>
+</html>
